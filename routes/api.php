@@ -20,5 +20,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('/v1')->group(function () {
     Route::post('/login', 'api\v1\LoginController@login');
+    
     Route::post('/register', 'api\v1\RegisterController@register');
 });
