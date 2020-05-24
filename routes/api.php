@@ -34,5 +34,10 @@ Route::prefix('/v1')->group(function () {
         Route::match(['get', 'post'], '/merchant/create', 'MerchantController@create')->name('merchant.create');
         Route::match(['get', 'post'], '/merchant/{merchant}/edit', 'MerchantController@edit')->name('merchant.edit');
         Route::post('/merchant', 'MerchantController@index')->name('merchant.delete');
+        // Order Routes
+        Route::get('/order', 'OrderController@index')->name('order.index');
+        Route::match(['get', 'post'], '/order/create', 'OrderController@create')->name('order.create');
+        Route::match(['get', 'post'], '/order/{order}/edit', 'OrderController@edit')->name('order.edit');
+        Route::post('/order', 'OrderController@index')->name('order.delete');
     });
 });
