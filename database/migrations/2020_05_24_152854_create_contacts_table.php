@@ -23,6 +23,9 @@ class CreateContactsTable extends Migration
             $table->string('alt_phone')->nullable;
             $table->timestamps();
             $table->softdeletes();
+
+            $table->integer('merchant_id');
+            $table->integer('company_id');
         });
     }
 

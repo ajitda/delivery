@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'personal_client_id' => env('PERSONAL_CLIENT_ID'),
+    'personal_client_secret' => env('PERSONAL_CLIENT_SECRET'),
+
+    'password_client_id' => env('PASSWORD_CLIENT_ID'),
+    'password_client_secret' => env('PASSWORD_CLIENT_SECRET'),
+
     'roles' => [
         'company' => 'company',
         'merchant' => 'merchant'

@@ -27,6 +27,10 @@ class CreateOrdersTable extends Migration
             $table->string('status');
             $table->integer('user_id');
 
+            $table->integer('merchant_id');
+            $table->integer('company_id');
+            
+
             $table->timestamps();
             $table->softdeletes();
         });

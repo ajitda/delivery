@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 class LoginController extends Controller
 {
     public function login(Request $request) {
+
         $input = $this->validate($request, [
             'email' => 'required|email|exists:users,email',
             'password' => 'required|min:6',
@@ -19,16 +20,24 @@ class LoginController extends Controller
 
         request()->request->add([
             'grant_type' => 'password',
-            'client_id' => env('PASSWORD_CLIENT_ID'),
-            'client_secret' => env('PASSWORD_CLIENT_SECRET'),
+            'client_id' => config('delivery.password_client_id'),
+            'client_secret' => config('delivery.password_client_secret'),
             'username' => $input['email'],
             'password' => $input['password'],
         ]);
+
         $response = Route::dispatch(Request::create('/oauth/token', 'POST'));
+
+
+ 
+
         $data = json_decode($response->getContent(), true);
+
+
         if (!$response->isOk()) {
             return response()->json($data, 401);
         }
+        
         return $data;
     }
 

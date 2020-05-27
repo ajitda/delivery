@@ -22,6 +22,9 @@ class CreateProductsTable extends Migration
             $table->decimal('price');
             $table->timestamps();
             $table->softdeletes();
+
+            $table->integer('merchant_id');
+            $table->integer('company_id');
         });
     }
 

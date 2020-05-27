@@ -23,7 +23,7 @@ class RegisterController extends Controller
 
         try {
             event(new Registered($this->create($request->all())));
-
+  
             $http = new Client();
 
             $response = $http->post(env('APP_URL') . '/oauth/token', [

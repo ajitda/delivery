@@ -21,15 +21,25 @@ class MerchantController extends Controller
            return $this->sendError($valid->errors());
         }
         $company = auth()->user()->companies;
+      
         // dd($company[0]);
         $input['name'] = $input['first_name'].' '.$input['last_name'];
+
         $user= (new User())->saveUser($input);
-         $user->companies()->attach($company[0]);
+
+        $user->companies()->attach($company[0]);
         // $company = $user->companies()->create(['name'=>$input['name'], 'domain'=>$input['domain']]);
         $input['user_id'] = $user->id;
         $merchant = Merchant::create($input);
         $user->assignRole(config('delivery.roles.merchant'));
+
+        
        return $this->sendResponse($user);
+    }
+
+    public function show($id){
+        $single_data = Merchant::where('id', $id)->first();
+        return $single_data;
     }
 
     public function edit(Request $request, Merchant $merchant) {
