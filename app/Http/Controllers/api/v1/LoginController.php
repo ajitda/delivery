@@ -35,10 +35,10 @@ class LoginController extends Controller
 
 
         if (!$response->isOk()) {
-            return response()->json($data, 401);
+            return $this->sendError($data);
         }
         
-        return $data;
+        return $this->sendResponse($data);
     }
 
     public function logout(Request $request)

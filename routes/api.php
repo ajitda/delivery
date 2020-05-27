@@ -22,12 +22,12 @@ Route::prefix('/v1')->group(function () {
     //User auth routes
     Route::post('/login', 'api\v1\LoginController@login');
     Route::post('/register', 'api\v1\RegisterController@register');
-
+    Route::match(['get', 'post'], '/company/create', 'CompanyController@create')->name('company.create');
     // Route::middleware('auth:api')
     Route::middleware('auth:api')->group(function () {
         // Company Routes
         Route::get('/company', 'CompanyController@index')->name('company.index');
-        Route::match(['get', 'post'], '/company/create', 'CompanyController@create')->name('company.create');
+        
         Route::get('/company/{id}', 'CompanyController@show')->name('company.show');
         Route::match(['get', 'post'], '/company/{company}/edit', 'CompanyController@edit')->name('company.edit');
         // Merchant Routes

@@ -8,10 +8,17 @@ use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
+    public $order;
+
+    public function __construct(Order $order)
+    {
+        $this->order = $order;
+    }
+
     public function index()
     {
-        if()
-        return Order::all();
+        // if()
+        return $this->order->getAll();
     }
 
     public function create(Request $request)
@@ -24,8 +31,8 @@ class OrderController extends Controller
         }
 
         
-        $order = Order::create($input);
-       return $this->sendResponse($order);
+        $order = $this->order->createOrder($input);
+        return $this->sendResponse($order);
 
         
     }
