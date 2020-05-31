@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -28,16 +29,14 @@ class LoginController extends Controller
 
         $response = Route::dispatch(Request::create('/oauth/token', 'POST'));
 
-
- 
-
         $data = json_decode($response->getContent(), true);
-
 
         if (!$response->isOk()) {
             return $this->sendError($data);
         }
-        
+        $user = User::where('email', $input['email'])->first();
+        $data['user_id'] = $user->id;
+        $data['company_id'] = $user->companies->first()->id;
         return $this->sendResponse($data);
     }
 
