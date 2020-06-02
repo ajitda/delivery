@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\CommonTrait;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -9,7 +10,7 @@ use Illuminate\Routing\Controller as BaseController;
 
 class Controller extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests, CommonTrait;
 
     /**
      * success response method.
@@ -24,6 +25,12 @@ class Controller extends BaseController
         return response()->json($response, 200);
     }
 
+    public function sendViewResponse($response, $message=null)
+    {
+        $response['status'] = 'success';
+        $response['success'] = true;
+        return response()->json($response, 200);
+    }
 
     /**
      * return error response.
@@ -40,4 +47,6 @@ class Controller extends BaseController
         ];
         return response()->json($response, 200);
     }
+
+
 }

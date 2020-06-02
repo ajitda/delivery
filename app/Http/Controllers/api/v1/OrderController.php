@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\v1;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -30,11 +30,11 @@ class OrderController extends Controller
            return $this->sendError($valid->errors());
         }
 
-        
+
         $order = $this->order->createOrder($input);
         return $this->sendResponse($order);
 
-        
+
     }
 
 
@@ -52,7 +52,7 @@ class OrderController extends Controller
             'status' => ['required', 'string', 'max:255|min:1'],
             'user_id' => ['required', 'integer', 'max:255|min:1'],
 
-            
+
         ]);
     }
 

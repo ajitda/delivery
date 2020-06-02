@@ -1,0 +1,36 @@
+.pt-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    //	display: flex;
+    //	justify-content: center;
+    align-items: center;
+    height: 5px;
+    width: 100vw;
+    padding: 0;
+    margin: 0;
+    opacity: 1;
+    z-index: 2000;
+    display: none;
+    .loading-progress {
+        height: 5px;
+        width: 100%;
+        border-radius: 3px;
+        background: linear-gradient(90deg, #fde896 0%, #aa57d9 20%, #fa5aa6 40%, #fc6d95 60%, #fdb17a 80%, #fdcc85 90%,#fde896 100% );
+        background-size: 200%;
+        animation: moveGradient 5s linear infinite;
+    }
+}
+
+@keyframes  moveGradient {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: -400% 0%;
+    }
+}
+
+body.ajax-on .pt-loading, body.ajax-upload-on .pt-loading {
+    display: flex;
+}

@@ -3,63 +3,60 @@
 namespace App\Http\Controllers;
 
 use App\Models\Merchant;
-use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class MerchantController extends Controller
 {
-    public function index()
+    public function __construct(Merchant $merchant)
     {
-        return Merchant::all();
+        $this->merchant = $merchant;
     }
 
-    public function create(Request $request) {
-        $input = $request->all();
-        $valid = $this->validator($input);
-        if($valid->fails()) {
-           return $this->sendError($valid->errors());
+    public  function index()
+    {
+        $data['merchants'] = $this->merchant->getAll(['paginate'=>5]);
+        if (\request()->ajax()) {
+            return $this->commonResponse($data, null, 'index');
         }
-        $company = auth()->user()->companies;
-      
-        // dd($company[0]);
-        $input['name'] = $input['first_name'].' '.$input['last_name'];
-
-        $user= (new User())->saveUser($input);
-
-        $user->companies()->attach($company[0]);
-        // $company = $user->companies()->create(['name'=>$input['name'], 'domain'=>$input['domain']]);
-        $input['user_id'] = $user->id;
-        $merchant = Merchant::create($input);
-        $user->assignRole(config('delivery.roles.merchant'));
-
-        
-       return $this->sendResponse($user);
+        return view('merchants.index', $data);
     }
 
-    public function show($id){
-        $single_data = Merchant::where('id', $id)->first();
-        return $single_data;
+    public function create()
+    {
+        $input = \request()->all();
+        $this->merchant->createMerchant($input, 'validation');
+        $notify = 'Merchant added!';
+        return $this->commonResponse([], $notify, 'add');
     }
 
-    public function edit(Request $request, Merchant $merchant) {
+    public function edit(Request $request, $id)
+    {
+        $data['merchant'] = $this->merchant->getById($id);
         if ($request->isMethod('POST')) {
-            $merchant->update($request->all());
+            $input = $request->all();
+            $this->merchant->validator($input, 'edit')->validate();
+            $input['user_id'] = $data['merchant']->user_id;
+            $data['merchant'] = $this->merchant->saveMerchant($input, ['id'=>$id]);
+            $notify = 'Merchant updated!';
+            return $this->commonResponse($data, $notify, 'update');
         }
-        return $merchant;
+        return $this->commonResponse($data, '', 'edit');
     }
 
-    protected function validator(array $data)
+    private function commonResponse($data=[], $notify = '', $option = null)
     {
-        return Validator::make($data, [
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:20'],
-            'date_of_birth' => ['required', 'string', 'max:20'],
-            'address' => ['required', 'string', 'max:255'],
-            'document_no' => ['required', 'string', 'max:30'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
+        $response = $this->processNotification($notify);
+        if ($option == 'add') {
+            $response['replaceWith']['#addMerchant'] = view('merchants.form', ['merchant'=>''])->render();
+        } else if ($option == 'edit' || $option == 'update') {
+            $response['replaceWith']['#editMerchant'] = view('merchants.form', $data)->render();
+        } else if ($option == 'show') {
+            $response['replaceWith']['#showAccount'] = view('account.profile', $data)->render();
+        }
+        if ( $option == 'index' || $option == 'add' || $option == 'update' || $option == 'delete') {
+            $data['merchants'] = $this->merchant->getAll(['paginate'=>5]);
+            $response['replaceWith']['#merchantTable'] = view('merchants.table', $data)->render();
+        }
+        return $this->sendViewResponse($response);
     }
 }

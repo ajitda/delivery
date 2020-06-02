@@ -1,0 +1,15 @@
+a.dropdown-item.delete-form {
+    i.fa-trash-alt {
+        float: left;
+    }
+    .delete-btn{
+        border: none;
+        padding-top: 0;
+        background: transparent;
+    }
+}
+.action-link {
+    i {
+        padding-right: 10px;
+    }
+}

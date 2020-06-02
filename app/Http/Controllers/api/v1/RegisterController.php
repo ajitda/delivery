@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\api\v1;
+namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\User;
@@ -23,7 +23,7 @@ class RegisterController extends Controller
 
         try {
             event(new Registered($this->create($request->all())));
-  
+
             $http = new Client();
 
             $response = $http->post(env('APP_URL') . '/oauth/token', [

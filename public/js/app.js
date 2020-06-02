@@ -65858,6 +65858,442 @@ __webpack_require__(/*! ./components/Example */ "./resources/js/components/Examp
 
 /***/ }),
 
+/***/ "./resources/js/bootstrap-notify/bootstrap-notify.js":
+/*!***********************************************************!*\
+  !*** ./resources/js/bootstrap-notify/bootstrap-notify.js ***!
+  \***********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+/*
+* Project: Bootstrap Notify = v3.1.5
+* Description: Turns standard Bootstrap alerts into "Growl-like" notifications.
+* Author: Mouse0270 aka Robert McIntosh
+* License: MIT License
+* Website: https://github.com/mouse0270/bootstrap-growl
+*/
+
+/* global define:false, require: false, jQuery:false */
+(function (factory) {
+  if (true) {
+    // AMD. Register as an anonymous module.
+    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+  } else {}
+})(function ($) {
+  // Create the defaults once
+  var defaults = {
+    element: 'body',
+    position: null,
+    type: "info",
+    allow_dismiss: true,
+    allow_duplicates: true,
+    newest_on_top: false,
+    showProgressbar: false,
+    placement: {
+      from: "top",
+      align: "right"
+    },
+    offset: 20,
+    spacing: 10,
+    z_index: 10311,
+    delay: 5000,
+    timer: 1000,
+    url_target: '_blank',
+    mouse_over: null,
+    animate: {
+      enter: 'animated fadeInDown',
+      exit: 'animated fadeOutUp'
+    },
+    onShow: null,
+    onShown: null,
+    onClose: null,
+    onClosed: null,
+    onClick: null,
+    icon_type: 'class',
+    template: '<div data-notify="container" class="col-xs-11 col-sm-4 alert alert-{0}" role="alert"><button type="button" aria-hidden="true" class="close" data-notify="dismiss">&times;</button><span data-notify="icon"></span> <span data-notify="title">{1}</span> <span data-notify="message">{2}</span><div class="progress" data-notify="progressbar"><div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div></div><a href="{3}" target="{4}" data-notify="url"></a></div>'
+  };
+
+  String.format = function () {
+    var args = arguments;
+    var str = arguments[0];
+    return str.replace(/(\{\{\d\}\}|\{\d\})/g, function (str) {
+      if (str.substring(0, 2) === "{{") return str;
+      var num = parseInt(str.match(/\d/)[0]);
+      return args[num + 1];
+    });
+  };
+
+  function isDuplicateNotification(notification) {
+    var isDupe = false;
+    $('[data-notify="container"]').each(function (i, el) {
+      var $el = $(el);
+      var title = $el.find('[data-notify="title"]').html().trim();
+      var message = $el.find('[data-notify="message"]').html().trim(); // The input string might be different than the actual parsed HTML string!
+      // (<br> vs <br /> for example)
+      // So we have to force-parse this as HTML here!
+
+      var isSameTitle = title === $("<div>" + notification.settings.content.title + "</div>").html().trim();
+      var isSameMsg = message === $("<div>" + notification.settings.content.message + "</div>").html().trim();
+      var isSameType = $el.hasClass('alert-' + notification.settings.type);
+
+      if (isSameTitle && isSameMsg && isSameType) {
+        //we found the dupe. Set the var and stop checking.
+        isDupe = true;
+      }
+
+      return !isDupe;
+    });
+    return isDupe;
+  }
+
+  function Notify(element, content, options) {
+    // Setup Content of Notify
+    var contentObj = {
+      content: {
+        message: _typeof(content) === 'object' ? content.message : content,
+        title: content.title ? content.title : '',
+        icon: content.icon ? content.icon : '',
+        url: content.url ? content.url : '#',
+        target: content.target ? content.target : '-'
+      }
+    };
+    options = $.extend(true, {}, contentObj, options);
+    this.settings = $.extend(true, {}, defaults, options);
+    this._defaults = defaults;
+
+    if (this.settings.content.target === "-") {
+      this.settings.content.target = this.settings.url_target;
+    }
+
+    this.animations = {
+      start: 'webkitAnimationStart oanimationstart MSAnimationStart animationstart',
+      end: 'webkitAnimationEnd oanimationend MSAnimationEnd animationend'
+    };
+
+    if (typeof this.settings.offset === 'number') {
+      this.settings.offset = {
+        x: this.settings.offset,
+        y: this.settings.offset
+      };
+    } //if duplicate messages are not allowed, then only continue if this new message is not a duplicate of one that it already showing
+
+
+    if (this.settings.allow_duplicates || !this.settings.allow_duplicates && !isDuplicateNotification(this)) {
+      this.init();
+    }
+  }
+
+  $.extend(Notify.prototype, {
+    init: function init() {
+      var self = this;
+      this.buildNotify();
+
+      if (this.settings.content.icon) {
+        this.setIcon();
+      }
+
+      if (this.settings.content.url != "#") {
+        this.styleURL();
+      }
+
+      this.styleDismiss();
+      this.placement();
+      this.bind();
+      this.notify = {
+        $ele: this.$ele,
+        update: function update(command, _update) {
+          var commands = {};
+
+          if (typeof command === "string") {
+            commands[command] = _update;
+          } else {
+            commands = command;
+          }
+
+          for (var cmd in commands) {
+            switch (cmd) {
+              case "type":
+                this.$ele.removeClass('alert-' + self.settings.type);
+                this.$ele.find('[data-notify="progressbar"] > .progress-bar').removeClass('progress-bar-' + self.settings.type);
+                self.settings.type = commands[cmd];
+                this.$ele.addClass('alert-' + commands[cmd]).find('[data-notify="progressbar"] > .progress-bar').addClass('progress-bar-' + commands[cmd]);
+                break;
+
+              case "icon":
+                var $icon = this.$ele.find('[data-notify="icon"]');
+
+                if (self.settings.icon_type.toLowerCase() === 'class') {
+                  $icon.removeClass(self.settings.content.icon).addClass(commands[cmd]);
+                } else {
+                  if (!$icon.is('img')) {
+                    $icon.find('img');
+                  }
+
+                  $icon.attr('src', commands[cmd]);
+                }
+
+                self.settings.content.icon = commands[command];
+                break;
+
+              case "progress":
+                var newDelay = self.settings.delay - self.settings.delay * (commands[cmd] / 100);
+                this.$ele.data('notify-delay', newDelay);
+                this.$ele.find('[data-notify="progressbar"] > div').attr('aria-valuenow', commands[cmd]).css('width', commands[cmd] + '%');
+                break;
+
+              case "url":
+                this.$ele.find('[data-notify="url"]').attr('href', commands[cmd]);
+                break;
+
+              case "target":
+                this.$ele.find('[data-notify="url"]').attr('target', commands[cmd]);
+                break;
+
+              default:
+                this.$ele.find('[data-notify="' + cmd + '"]').html(commands[cmd]);
+            }
+          }
+
+          var posX = this.$ele.outerHeight() + parseInt(self.settings.spacing) + parseInt(self.settings.offset.y);
+          self.reposition(posX);
+        },
+        close: function close() {
+          self.close();
+        }
+      };
+    },
+    buildNotify: function buildNotify() {
+      var content = this.settings.content;
+      this.$ele = $(String.format(this.settings.template, this.settings.type, content.title, content.message, content.url, content.target));
+      this.$ele.attr('data-notify-position', this.settings.placement.from + '-' + this.settings.placement.align);
+
+      if (!this.settings.allow_dismiss) {
+        this.$ele.find('[data-notify="dismiss"]').css('display', 'none');
+      }
+
+      if (this.settings.delay <= 0 && !this.settings.showProgressbar || !this.settings.showProgressbar) {
+        this.$ele.find('[data-notify="progressbar"]').remove();
+      }
+    },
+    setIcon: function setIcon() {
+      if (this.settings.icon_type.toLowerCase() === 'class') {
+        this.$ele.find('[data-notify="icon"]').addClass(this.settings.content.icon);
+      } else {
+        if (this.$ele.find('[data-notify="icon"]').is('img')) {
+          this.$ele.find('[data-notify="icon"]').attr('src', this.settings.content.icon);
+        } else {
+          this.$ele.find('[data-notify="icon"]').append('<img src="' + this.settings.content.icon + '" alt="Notify Icon" />');
+        }
+      }
+    },
+    styleDismiss: function styleDismiss() {
+      this.$ele.find('[data-notify="dismiss"]').css({
+        position: 'absolute',
+        right: '10px',
+        top: '5px',
+        zIndex: this.settings.z_index + 2
+      });
+    },
+    styleURL: function styleURL() {
+      this.$ele.find('[data-notify="url"]').css({
+        backgroundImage: 'url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)',
+        height: '100%',
+        left: 0,
+        position: 'absolute',
+        top: 0,
+        width: '100%',
+        zIndex: this.settings.z_index + 1
+      });
+    },
+    placement: function placement() {
+      var self = this,
+          offsetAmt = this.settings.offset.y,
+          css = {
+        display: 'inline-block',
+        margin: '0px auto',
+        position: this.settings.position ? this.settings.position : this.settings.element === 'body' ? 'fixed' : 'absolute',
+        transition: 'all .5s ease-in-out',
+        zIndex: this.settings.z_index
+      },
+          hasAnimation = false,
+          settings = this.settings;
+      $('[data-notify-position="' + this.settings.placement.from + '-' + this.settings.placement.align + '"]:not([data-closing="true"])').each(function () {
+        offsetAmt = Math.max(offsetAmt, parseInt($(this).css(settings.placement.from)) + parseInt($(this).outerHeight()) + parseInt(settings.spacing));
+      });
+
+      if (this.settings.newest_on_top === true) {
+        offsetAmt = this.settings.offset.y;
+      }
+
+      css[this.settings.placement.from] = offsetAmt + 'px';
+
+      switch (this.settings.placement.align) {
+        case "left":
+        case "right":
+          css[this.settings.placement.align] = this.settings.offset.x + 'px';
+          break;
+
+        case "center":
+          css.left = 0;
+          css.right = 0;
+          break;
+      }
+
+      this.$ele.css(css).addClass(this.settings.animate.enter);
+      $.each(Array('webkit-', 'moz-', 'o-', 'ms-', ''), function (index, prefix) {
+        self.$ele[0].style[prefix + 'AnimationIterationCount'] = 1;
+      });
+      $(this.settings.element).append(this.$ele);
+
+      if (this.settings.newest_on_top === true) {
+        offsetAmt = parseInt(offsetAmt) + parseInt(this.settings.spacing) + this.$ele.outerHeight();
+        this.reposition(offsetAmt);
+      }
+
+      if ($.isFunction(self.settings.onShow)) {
+        self.settings.onShow.call(this.$ele);
+      }
+
+      this.$ele.one(this.animations.start, function () {
+        hasAnimation = true;
+      }).one(this.animations.end, function () {
+        self.$ele.removeClass(self.settings.animate.enter);
+
+        if ($.isFunction(self.settings.onShown)) {
+          self.settings.onShown.call(this);
+        }
+      });
+      setTimeout(function () {
+        if (!hasAnimation) {
+          if ($.isFunction(self.settings.onShown)) {
+            self.settings.onShown.call(this);
+          }
+        }
+      }, 600);
+    },
+    bind: function bind() {
+      var self = this;
+      this.$ele.find('[data-notify="dismiss"]').on('click', function () {
+        self.close();
+      });
+
+      if ($.isFunction(self.settings.onClick)) {
+        this.$ele.on('click', function (event) {
+          if (event.target != self.$ele.find('[data-notify="dismiss"]')[0]) {
+            self.settings.onClick.call(this, event);
+          }
+        });
+      }
+
+      this.$ele.mouseover(function () {
+        $(this).data('data-hover', "true");
+      }).mouseout(function () {
+        $(this).data('data-hover', "false");
+      });
+      this.$ele.data('data-hover', "false");
+
+      if (this.settings.delay > 0) {
+        self.$ele.data('notify-delay', self.settings.delay);
+        var timer = setInterval(function () {
+          var delay = parseInt(self.$ele.data('notify-delay')) - self.settings.timer;
+
+          if (self.$ele.data('data-hover') === 'false' && self.settings.mouse_over === "pause" || self.settings.mouse_over != "pause") {
+            var percent = (self.settings.delay - delay) / self.settings.delay * 100;
+            self.$ele.data('notify-delay', delay);
+            self.$ele.find('[data-notify="progressbar"] > div').attr('aria-valuenow', percent).css('width', percent + '%');
+          }
+
+          if (delay <= -self.settings.timer) {
+            clearInterval(timer);
+            self.close();
+          }
+        }, self.settings.timer);
+      }
+    },
+    close: function close() {
+      var self = this,
+          posX = parseInt(this.$ele.css(this.settings.placement.from)),
+          hasAnimation = false;
+      this.$ele.attr('data-closing', 'true').addClass(this.settings.animate.exit);
+      self.reposition(posX);
+
+      if ($.isFunction(self.settings.onClose)) {
+        self.settings.onClose.call(this.$ele);
+      }
+
+      this.$ele.one(this.animations.start, function () {
+        hasAnimation = true;
+      }).one(this.animations.end, function () {
+        $(this).remove();
+
+        if ($.isFunction(self.settings.onClosed)) {
+          self.settings.onClosed.call(this);
+        }
+      });
+      setTimeout(function () {
+        if (!hasAnimation) {
+          self.$ele.remove();
+
+          if ($.isFunction(self.settings.onClosed)) {
+            self.settings.onClosed.call(this);
+          }
+        }
+      }, 600);
+    },
+    reposition: function reposition(posX) {
+      var self = this,
+          notifies = '[data-notify-position="' + this.settings.placement.from + '-' + this.settings.placement.align + '"]:not([data-closing="true"])',
+          $elements = this.$ele.nextAll(notifies);
+
+      if (this.settings.newest_on_top === true) {
+        $elements = this.$ele.prevAll(notifies);
+      }
+
+      $elements.each(function () {
+        $(this).css(self.settings.placement.from, posX);
+        posX = parseInt(posX) + parseInt(self.settings.spacing) + $(this).outerHeight();
+      });
+    }
+  });
+
+  $.notify = function (content, options) {
+    var plugin = new Notify(this, content, options);
+    return plugin.notify;
+  };
+
+  $.notifyDefaults = function (options) {
+    defaults = $.extend(true, {}, defaults, options);
+    return defaults;
+  };
+
+  $.notifyClose = function (selector) {
+    if (typeof selector === "undefined" || selector === "all") {
+      $('[data-notify]').find('[data-notify="dismiss"]').trigger('click');
+    } else if (selector === 'success' || selector === 'info' || selector === 'warning' || selector === 'danger') {
+      $('.alert-' + selector + '[data-notify]').find('[data-notify="dismiss"]').trigger('click');
+    } else if (selector) {
+      $(selector + '[data-notify]').find('[data-notify="dismiss"]').trigger('click');
+    } else {
+      $('[data-notify-position="' + selector + '"]').find('[data-notify="dismiss"]').trigger('click');
+    }
+  };
+
+  $.notifyCloseExcept = function (selector) {
+    if (selector === 'success' || selector === 'info' || selector === 'warning' || selector === 'danger') {
+      $('[data-notify]').not('.alert-' + selector).find('[data-notify="dismiss"]').trigger('click');
+    } else {
+      $('[data-notify]').not(selector).find('[data-notify="dismiss"]').trigger('click');
+    }
+  };
+});
+
+/***/ }),
+
 /***/ "./resources/js/bootstrap.js":
 /*!***********************************!*\
   !*** ./resources/js/bootstrap.js ***!
@@ -65901,6 +66337,12 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     forceTLS: true
 // });
 
+__webpack_require__(/*! ./bootstrap-notify/bootstrap-notify */ "./resources/js/bootstrap-notify/bootstrap-notify.js");
+
+__webpack_require__(/*! ./custom/theme */ "./resources/js/custom/theme.js");
+
+__webpack_require__(/*! ./custom/custom */ "./resources/js/custom/custom.js");
+
 /***/ }),
 
 /***/ "./resources/js/components/Example.js":
@@ -65943,6 +66385,351 @@ if (document.getElementById('example')) {
 
 /***/ }),
 
+/***/ "./resources/js/custom/custom.js":
+/*!***************************************!*\
+  !*** ./resources/js/custom/custom.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+
+
+/***/ }),
+
+/***/ "./resources/js/custom/theme.js":
+/*!**************************************!*\
+  !*** ./resources/js/custom/theme.js ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+$(window).ready(function () {
+  $.ajaxSetup({
+    headers: {
+      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    } // beforeSend: function(xhr, settings) {
+    // 	if ( settings.url.match(/^https:\/\/(beta.|dev.)*peopletail.com/ig) ) {
+    // 		xhr.setRequestHeader('X-CSRF-TOKEN', $('meta[name="csrf-token"]').attr('content'));
+    // 	}
+    // 	if ( $(settings.context).hasClass('ajax-on-el') ) {
+    // 		settings.cancel = true;
+    // 		return false;
+    // 	}
+    // 	$(settings.context).addClass('ajax-on-el');
+    // }
+
+  });
+  $(document).ajaxStart(function () {
+    $('body').addClass('ajax-on');
+  }).ajaxStop(function () {
+    $('body').removeClass('ajax-on');
+  }).ajaxSuccess(function (e, request, settings, data) {
+    console.log(data); // if ( ! settings.url.match(/^https:\/\/(beta.|dev.)*peopletail.com/ig) ) {
+    // 	// do nothing
+    // } else
+
+    if (data.redirect) {
+      window.location = data.redirect;
+    } else {
+      var target = $(settings.context); //			var supportedOps = [ 'replaceWith', 'append', 'prepend', 'fadeOut' ];
+
+      $.each(data, function (i, d) {
+        //				if ( ! supportedOps.includes(i) ) return;
+        if (!Object.keys($.fn).includes(i)) return;
+        $.each(d, function (j, k) {
+          $(j)[i](k);
+        });
+      }); //			$.each(data.replaceWith,function(i,d) { $(i).replaceWith(d); });
+      //			$.each(data.append,function(i,d){
+      //				$.each(d,function(j,l) { $(i).append(l); });
+      //			});
+
+      if (target.attr('data-ajax-event')) {
+        $(document).trigger(target.attr('data-ajax-event'), data);
+      } else {
+        target.trigger('done', data);
+      }
+
+      $.each(data.notify, function (i, d) {
+        $.notify({
+          message: d
+        }, {
+          type: i
+        });
+      });
+      $(settings.context).removeClass('ajax-on-el');
+
+      if (data.reload) {
+        window.location.reload();
+      }
+    }
+  }).ajaxError(function (e, jqXHR, settings, thrownError) {
+    if (settings.cancel) return true; // canceled by beforeSend
+
+    var data;
+
+    try {
+      data = JSON.parse(jqXHR.responseText);
+      console.log(data);
+    } catch (e) {
+      // do nothing
+      data = false;
+    }
+
+    if (data && data.errors) {
+      // && jqXHR.status == 422 ) {
+      $.each(data.errors, function (i, d) {
+        $.notify({
+          message: d
+        }, {
+          type: 'danger'
+        });
+      });
+    } else {
+      $.notify({
+        message: 'System error encountered.  Please try again later'
+      }, {
+        type: 'danger'
+      });
+    }
+
+    $(settings.context).removeClass('ajax-on-el');
+  }); // infinite scroll
+  //	if ( typeof jQuery.fn.infiniteScroll != 'undefined' ) {
+  //		$('.scroll-pagination > .container-wide').infiniteScroll({
+  //			path: '.pagination > a',
+  //			append: '.section-recommendations .scroll-item',
+  //			history: false,
+  //			scrollThreshold: 100
+  //		}).on('request.infiniteScroll',function() {
+  //			$('body').addClass('ajax-on');
+  //		}).on('load.infiniteScroll',function() {
+  //			$('body').removeClass('ajax-on');
+  //		});
+  //	}
+  //
+  // mobile menu
+  //        $('#close-mobile-menu').on('click', function(){
+  //		$('body').removeClass('sidebar-on');
+  //        });
+  //        $('#open-mobile-menu').on('click', function(){
+  //		$('body').addClass('sidebar-on');
+  //	});
+  // searchbar
+  //	$('.search-navbar').each(function() {
+  //                $('.home-navbar__search').focusin(function() {
+  //                        $('.home-navbar__tags_search').addClass('home-navbar__tags_search--expanded');
+  //                });
+  //                $('.home-navbar__search').focusout(function() {
+  //                        if ( $('#header_search_element').val() == '' )
+  //                                $('.home-navbar__tags_search').removeClass('home-navbar__tags_search--expanded');
+  //                });
+  //	});
+  // overlay click event
+
+  $(document).on('click', '[data-redirect!=""][data-redirect]', function (e) {
+    e.stopPropagation();
+    var url = $(e.currentTarget).attr('data-redirect');
+    window.location.href = url;
+  }); // share click event
+
+  $(document).on('click', '[role="share"]', function (e) {
+    e.stopPropagation();
+    var el = $(e.currentTarget);
+    $('.addthis_sharing-toolbox').attr('data-url', el.attr('data-url')).attr('data-title', el.attr('data-title'));
+    $('#share-modal').modal();
+  }); // click class
+
+  $(document).on('click', '[data-toggle-class!=""][data-toggle-class]', function (e) {
+    e.stopPropagation();
+    var target = $(e.currentTarget);
+    var cl = target.attr('data-toggle-class');
+
+    if (target.hasClass('disabled')) {
+      return;
+    }
+
+    if (target.attr('data-toggle-target')) {
+      target = $(target.attr('data-toggle-target'));
+    }
+
+    target.toggleClass(cl);
+  }); // ajax get supports
+
+  $(document).on('click', '[data-ajax-url!=""][data-ajax-url]', function (e) {
+    e.stopPropagation();
+
+    if ($(e.currentTarget).attr('data-replace-empty')) {
+      var emptyId = $(e.currentTarget).attr('data-replace-empty');
+      $(emptyId).empty().html("<h2 style='text-align:center;padding:20px;'>Loading</h2>");
+    }
+
+    var url = $(e.currentTarget).attr('data-ajax-url');
+    var method = $(e.currentTarget).attr('data-ajax-method') || 'GET';
+    $.ajax({
+      url: url,
+      context: this,
+      method: method
+    });
+  }); // general form handler
+
+  $(document).on('submit', function (e) {
+    var that = $(e.target); // missing validation
+    // disable form submission
+
+    if (that.attr('data-no-submit') !== undefined) {
+      e.stopPropagation();
+      e.preventDefault();
+      return false;
+    } else if (that.attr('data-no-ajax') !== undefined) {
+      return true;
+    }
+
+    e.stopPropagation();
+    e.preventDefault();
+    var method = that.attr('method') || 'GET';
+    var action = that.attr('action');
+    var dataSend = null;
+
+    if (method == 'GET') {
+      action += '?' + that.serialize();
+    } else {
+      dataSend = new FormData(e.target);
+    }
+
+    $.ajax({
+      url: action,
+      method: method,
+      dataType: 'JSON',
+      data: dataSend,
+      //new FormData(e.target),
+      contentType: false,
+      cache: false,
+      processData: false,
+      context: e.target
+    });
+    return false;
+  });
+  $(document).on('click', '[data-videojs]', function (e) {
+    var container = $(this).closest('.video');
+    container.addClass('video-on');
+    var player = videojs(container.find('video').get(0));
+    player.play();
+  }); // Don't close if opened profile dropdown
+
+  $(document).on('click', '.dropdown-menu', function (e) {
+    e.stopPropagation();
+  }); // Notification close button mobile
+
+  $('.close_notification_mobile_feed').click(function () {
+    $('.profile_notification_block .dropdown-menu').removeClass("show");
+  }); //	$('.slider').slick({
+  //		dots: true,
+  //		arrows:false
+  //	});
+
+  $('.notification_block a[data-toggle="tab"], #tabs-nav a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    var that = $(e.target);
+    var ids = $.map($(that.attr('data-target') + ' .unread[data-id]'), function (val, i) {
+      return $(val).attr('data-id');
+    });
+    that.removeClass('marked');
+
+    if (ids.length) {
+      $.ajax({
+        url: that.attr('data-url'),
+        context: this,
+        method: 'POST',
+        data: {
+          'id': ids
+        }
+      });
+    }
+  });
+});
+/* global functions */
+//function logout(event) {
+//	event.preventDefault();
+//	document.getElementById('logout-form').submit();
+//}
+// Copy to clickboard
+
+function copyClick(that) {
+  var p = $(that).parents('.control-copy');
+  p.find('input').get(0).select();
+  document.execCommand("copy");
+  p.addClass('copied');
+  return false;
+}
+
+function copyOut(that) {
+  $(that).parent().removeClass('copied');
+} //
+//
+
+
+function formValidate(form) {
+  var valid = true;
+  $('input', form).each(function (idx, el) {
+    valid = valid && el.reportValidity();
+  });
+  $('[data-validate-required]').each(function (idx, el) {
+    var stat = $($(el).attr('data-validate-required'), form).length > 0;
+
+    if (!stat) {
+      $(el).addClass('error');
+    } else {
+      $(el).removeClass('error');
+    }
+
+    valid = valid && stat;
+  });
+  return valid;
+}
+
+$.progress = function (percent) {
+  percent = Math.max(5, percent);
+
+  if (percent == 100) {
+    $('#progressbar-recommendation .loading-progress').removeAttr('style');
+  } else {
+    $('#progressbar-recommendation .loading-progress').css('width', percent + '%');
+  }
+}; //$.fn.extend( {
+//	uniqueId: ( function() {
+//		var uuid = 0;
+//
+//		return function() {
+//			return this.each( function() {
+//				if ( !this.id ) {
+//					this.id = "ui-id-" + ( ++uuid );
+//				}
+//			} );
+//		};
+//	} )(),
+//
+//	removeUniqueId: function() {
+//		return this.each( function() {
+//			if ( /^ui-id-\d+$/.test( this.id ) ) {
+//				$( this ).removeAttr( "id" );
+//			}
+//		} );
+//	}
+//} );
+
+
+function onclickTextChange(id, value) {
+  $("#" + id).text(value);
+} // function onclickHide(id, option=''){
+// 	if (option == 'toggle') {
+// 		$("#"+id).toggle();
+// 	} else{
+// 		$("#"+id).hide();
+// 	}
+// }
+
+/***/ }),
+
 /***/ "./resources/sass/app.scss":
 /*!*********************************!*\
   !*** ./resources/sass/app.scss ***!
@@ -65961,8 +66748,8 @@ if (document.getElementById('example')) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! D:\prjs\fpos_com\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! D:\prjs\fpos_com\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! D:\prjs\delivery\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! D:\prjs\delivery\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

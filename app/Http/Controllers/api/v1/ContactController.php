@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\v1;
 
-use App\Models\Product;
+use App\Models\Contacts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class ProductController extends Controller
+class ContactController extends Controller
 {
     public function index()
     {
-        return Product::all();
+        return Contacts::all();
     }
 
     public function create(Request $request) {
@@ -19,23 +19,23 @@ class ProductController extends Controller
         if($valid->fails()) {
            return $this->sendError($valid->errors());
         }
-      
-        $contact = Product::create($input);
 
-        
+        $contact = Contacts::create($input);
+
+
        return $this->sendResponse($contact);
     }
+
+
+
 
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            
+            'type' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
-            'size' => ['required', 'string', 'max:255'],
-            'weight' => ['required', 'string', 'max:255'],
-            'qty' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'string', 'max:255'],
-
+            'address' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:255'],
         ]);
     }
 }
