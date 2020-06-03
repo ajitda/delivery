@@ -35,21 +35,28 @@ Route::middleware('auth')->group(function () {
     Route::post('/merchant', 'MerchantController@index')->name('merchant.delete');
 
     // Order Routes
-//    Route::get('/order', 'OrderController@index')->name('order.index');
-//    Route::match(['get', 'post'], '/order/create', 'OrderController@create')->name('order.create');
-//    Route::match(['get', 'post'], '/order/{order}/edit', 'OrderController@edit')->name('order.edit');
-//    Route::post('/order', 'OrderController@index')->name('order.delete');
+   Route::get('/order', 'OrderController@index')->name('order.index');
+   Route::match(['get', 'post'], '/order/create', 'OrderController@create')->name('order.create');
+   Route::match(['get', 'post'], '/order/{order}/edit', 'OrderController@edit')->name('order.edit');
+   Route::post('/order', 'OrderController@index')->name('order.delete');
 
     // Contact Rutes
-//    Route::get('/contact', 'ContactController@index')->name('contact.index');
-//    Route::match(['get', 'post'], '/contact/create', 'ContactController@create')->name('contact.create');
-//    Route::match(['get', 'post'], '/contact/{contact}/edit', 'ContactController@edit')->name('contact.edit');
-//    Route::post('/contact', 'ContactController@index')->name('contact.delete');
+   Route::get('/contact', 'ContactController@index')->name('contact.index');
+   Route::match(['get', 'post'], '/contact/create', 'ContactController@create')->name('contact.create');
+   Route::match(['get', 'post'], '/contact/{contact}/edit', 'ContactController@edit')->name('contact.edit');
+   Route::post('/contact', 'ContactController@index')->name('contact.delete');
 
     // Product Rutes
-//    Route::get('/product', 'ProductController@index')->name('product.index');
-//    Route::match(['get', 'post'], '/product/create', 'ProductController@create')->name('product.create');
-//    Route::match(['get', 'post'], '/product/{contact}/edit', 'ProductController@edit')->name('product.edit');
-//    Route::post('/product', 'ProductController@index')->name('product.delete');
+   Route::get('/product', 'ProductController@index')->name('product.index');
+   Route::match(['get', 'post'], '/product/create', 'ProductController@create')->name('product.create');
+   Route::match(['get', 'post'], '/product/{contact}/edit', 'ProductController@edit')->name('product.edit');
+   Route::post('/product', 'ProductController@index')->name('product.delete');
+
+    // Package Rutes
+    Route::get('/package', 'PackageController@index')->name('package.index');
+    //Route::match(['get', 'post'], '/package/create', 'PackageController@create')->name('package.create');
+    Route::match(['get', 'post'], '/package/{contact}/edit', 'PackageController@edit')->name('package.edit');
+    Route::post('/package', 'PackageController@index')->name('package.delete');
+    
 
 });

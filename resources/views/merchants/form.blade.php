@@ -53,9 +53,9 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    {{ Form::label('address', __('address'),['class'=>'col-sm-3 text-right']) }}
+                    {{ Form::label('address', __('Address'),['class'=>'col-sm-3 text-right']) }}
                     <div class="col-sm-9">
-                        {{ Form::text('address', null, array('class'=>'form-control')) }}
+                        {{ Form::textarea('address', null, array('class'=>'form-control', 'rows' =>'3')) }}
                     </div>
                 </div>
                 <div class="form-group row">

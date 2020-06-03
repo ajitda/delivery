@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
@@ -23,16 +24,14 @@ class OrderController extends Controller
 
     public function create(Request $request)
     {
-        //Validation by istiyak
+
         $input = $request->all();
-        $valid = $this->validator($input);
+        $valid = $this->order->validator($input);
         if($valid->fails()) {
            return $this->sendError($valid->errors());
         }
-
-
-        $order = $this->order->createOrder($input);
-        return $this->sendResponse($order);
+        $merchant = $this->order->createMerchant($input);
+       return $this->sendResponse($order);
 
 
     }
