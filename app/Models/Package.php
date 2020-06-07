@@ -4,12 +4,12 @@ namespace App\Models;
 
 use App\Models\Package;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Validator;
 
 class Package extends Model
 {
     // protected $guarded = []; 
     protected $fillable = ['name', 'description', 'charge'];
-
 
     public function user(){
         return $this->belongsTo('App\User', 'user_id');

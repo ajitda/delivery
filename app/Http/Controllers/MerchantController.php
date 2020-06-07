@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contact;
 use App\Models\Merchant;
+use App\Models\Product;
 use Illuminate\Http\Request;
+use PhpParser\Node\Expr\AssignOp\Concat;
 
 class MerchantController extends Controller
 {
-    public function __construct(Merchant $merchant)
+    public function __construct(Merchant $merchant, Contact $contact, Product $product)
     {
         $this->merchant = $merchant;
+        $this->contact = $contact;
+        $this->product = $product;
     }
 
     public  function index()
@@ -41,6 +46,15 @@ class MerchantController extends Controller
             return $this->commonResponse($data, $notify, 'update');
         }
         return $this->commonResponse($data, '', 'edit');
+    }
+
+    public function getContactsProducts(Merchant $merchant)
+    {
+        $data['contacts'] = $merchant->contacts;
+        $data['products'] = $merchant->products;
+        // dd($merchant);
+        $response['replaceWith']['#orderProductContact'] = view('orders.partials.contact_product', $data)->render();
+        return $this->sendViewResponse($response);
     }
 
     private function commonResponse($data=[], $notify = '', $option = null)

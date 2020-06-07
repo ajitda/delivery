@@ -24,4 +24,14 @@
         <div class="modal-content" id="editOrder"></div>
     </div>
 </div>
+<div class="modal fade sub-modal" id="addContactModal">
+    <div class="modal-dialog modal-md">
+        @include('contacts.form', ['contact'=>''])
+    </div>
+</div>
+<div class="modal fade sub-modal" id="addProductModal">
+    <div class="modal-dialog modal-md">
+        @include('products.form', ['product'=>''])
+    </div>
+</div>
 @endsection

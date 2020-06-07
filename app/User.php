@@ -54,4 +54,8 @@ class User extends Authenticatable
         return $this->morphToMany('App\Models\Company', 'user', 'user_companies', 'user_id', 'company_id');
     }
 
+    public function merchant()
+    {
+        return $this->belongsTo('App\Models\Merchant');
+    }
 }

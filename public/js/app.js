@@ -66392,7 +66392,13 @@ if (document.getElementById('example')) {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-
+$.notifyDefaults({
+  placement: {
+    from: "top",
+    align: "center"
+  },
+  delay: 500
+});
 
 /***/ }),
 

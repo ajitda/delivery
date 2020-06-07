@@ -23,6 +23,7 @@ class CreateMerchantsTable extends Migration
             $table->string('address');
 
             $table->integer('user_id');
+            $table->integer('company_id');
             $table->timestamps();
             $table->softDeletes();
         });

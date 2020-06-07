@@ -29,7 +29,7 @@ class CreateOrdersTable extends Migration
 
             $table->integer('merchant_id');
             $table->integer('company_id');
-            
+            $table->integer('package_id');
 
             $table->timestamps();
             $table->softdeletes();

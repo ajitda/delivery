@@ -10,100 +10,64 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
     </div>
     <div class="modal-body" >
-        <div class="row">
-            <div class="col-md-4" >
-                <h4>Pickup Address</h4>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::text('name', null, array('class' => 'form-control', 'required', 'placeholder' => 'Name')) }}
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::textarea('address', null, array('class' => 'form-control', 'required', 'rows'=>3, 'placeholder' => 'Address')) }}
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::select('type',['pickup' => 'Pickup', 'delivery' => 'Delivery'], null, array('class' => 'form-control', 'required', 'placeholder' => 'Type')) }}
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::text('phone', null, array('class' => 'form-control', 'required', 'placeholder' => 'Phone Number')) }}
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::text('alt_phone', null, array('class' => 'form-control', 'required', 'placeholder' => 'Alternative Phone')) }}
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4" >
-                <h4>Delivery Address</h4>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::text('name', null, array('class' => 'form-control', 'required', 'placeholder' => 'Name')) }}
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::textarea('address', null, array('class' => 'form-control', 'required', 'rows'=>3, 'placeholder' => 'Address')) }}
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::select('type',['pickup' => 'Pickup', 'delivery' => 'Delivery'], null, array('class' => 'form-control', 'required', 'placeholder' => 'Type')) }}
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::text('phone', null, array('class' => 'form-control', 'required', 'placeholder' => 'Phone Number')) }}
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::text('alt_phone', null, array('class' => 'form-control', 'required', 'placeholder' => 'Alternative Phone')) }}
-                    </div>
-                </div>
-                
-            </div>
-            
-            
-            <div class="col-md-4">
-                <h4>Product Information</h4>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::text('name', null, array('class' => 'form-control', 'required', 'placeholder' => 'Product Name')) }}
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::text('size', null, array('class' => 'form-control', 'required', 'rows'=>3, 'placeholder' => 'Size')) }}
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::text('weight', null, array('class' => 'form-control', 'required', 'placeholder' => 'Weight')) }}
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::text('qty', null, array('class' => 'form-control', 'required', 'placeholder' => 'Quantity')) }}
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        {{ Form::text('price', null, array('class' => 'form-control', 'required', 'placeholder' => 'Price')) }}
-                    </div>
-                </div>
+        
+        <div class="form-group row">
+            {{ Form::label('merchant_id', __('Merchant') .' *',['class'=>'col-sm-3 text-right']) }}
+            <div class="col-sm-9">
+                <select name="merchant_id" class="form-control" id="merchant_id" onchange="getContactProduct()">
+                    <option value="">Select Merchant</option>
+                    @foreach($merchants as $merchant) 
+                    <option value="{{ $merchant->id}}">
+                   {{$merchant->first_name." ".$merchant->last_name}}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
+
+        <div id="orderProductContact">
+        </div>
+
+        <div class="form-group row">
+            {{ Form::label('pickup_note', __('Pickup Note') .' *',['class'=>'col-sm-3 text-right']) }}
+            <div class="col-sm-9">
+                {{ Form::text('pickup_note', null, array('class' => 'form-control', 'required', 'placeholder' => 'Pickup Note')) }}
+            </div>
+        </div>
+        <div class="form-group row">
+            {{ Form::label('delivery_note', __('Delivery Note') .' *',['class'=>'col-sm-3 text-right']) }}
+            <div class="col-sm-9">
+                {{ Form::text('delivery_note', null, array('class' => 'form-control', 'required', 'placeholder' => 'Delivery Note')) }}
+            </div>
+        </div>
+        <div class="form-group row">
+            {{ Form::label('order_note', __('Order Note') .' *',['class'=>'col-sm-3 text-right']) }}
+            <div class="col-sm-9">
+                {{ Form::text('order_note', null, array('class' => 'form-control', 'required', 'placeholder' => 'Order Note')) }}
+            </div>
+        </div>
+
+        <div class="form-group row">
+            {{ Form::label('package_id', __('Package') .' *',['class'=>'col-sm-3 text-right']) }}
+            <div class="col-sm-9">
+                {{Form::select('package_id', $packages, null, ['class'=>'form-control'])}}
+            </div>
+        </div>
+
     </div>
     <div class="modal-footer">
         {{ Form::submit(__('Submit'), array('class' => 'btn btn-success')) }}
         <button type="button" class="btn btn-default" data-dismiss="modal">{{__('Close')}}</button>
     </div>
     {{ Form::close() }}
+    <form action="" id="getContactProduct" method="GET">
+        @csrf
+    </form>
 </div>
+<script>
+    function getContactProduct() {
+        var merchant_id = $("#merchant_id").val();
+        var url = "{{url('merchant')}}/"+merchant_id+"/contacts_products"
+        var form = $("#getContactProduct").attr('action', url);
+        form.submit();
+    }
+</script>

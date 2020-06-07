@@ -10,7 +10,7 @@ class Merchant extends Model
 {
     protected $fillable = ['first_name', 'last_name', 'date_of_birth', 'document_no', 'phone', 'address', 'user_id'];
 
-    public function user(){
+    public function user() {
         return $this->belongsTo('App\User', 'user_id');
     }
 
@@ -39,6 +39,7 @@ class Merchant extends Model
         $merchant->document_no = !empty($input['document_no']) ? $input['document_no'] : '';
         $merchant->address = $input['address'];
         $merchant->user_id = $input['user_id'];
+        $merchant->company_id = session('company_id');
         $merchant->save();
         return $merchant;
     }
@@ -82,5 +83,15 @@ class Merchant extends Model
     public function getById($id)
     {
         return $this->findOrFail($id);
+    }
+
+    public function contacts()
+    {
+        return $this->hasMany('App\Models\Contact');
+    }
+
+    public function products()
+    {
+        return $this->hasMany('App\Models\Product');
     }
 }

@@ -18,6 +18,7 @@ class CreatePackagesTable extends Migration
             $table->string('name');
             $table->string('description')->nullable();
             $table->decimal('charge');
+            $table->bigInteger('company_id');
             $table->timestamps();
             $table->softdeletes();
         });

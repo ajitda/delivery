@@ -2,32 +2,42 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Order;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function __construct(Order $order)
+    public function __construct(Order $order, Company $company)
     {
         $this->order = $order;
+        $this->company = $company;
     }
 
     public  function index()
     {
-        
         $data['orders'] = $this->order->getAll(['paginate'=>5]);
         if (\request()->ajax()) {
             return $this->commonResponse($data, null, 'index');
         }
+        $company = $this->company->currentCompany();
+        $data['merchants'] = $company->merchants;
+        $data['packages'] = $company->packages->pluck('name', 'id');
+        // dd($data['merchants']);
         return view('orders.index', $data);
     }
 
     public function create()
     {
         $input = \request()->all();
-        $this->order->createOrder($input, 'validation');
+        $input['user_id'] = auth()->user()->id;
+        $input['company_id'] = session('company_id');
+        $this->order->saveOrder($input, 'validation');
         $notify = 'Order added!';
-        return $this->commonResponse([], $notify, 'add');
+        $company = $this->company->currentCompany();
+        $data['merchants'] = $company->merchants;
+        $data['packages'] = $company->packages->pluck('name', 'id');
+        return $this->commonResponse($data, $notify, 'add');
     }
 
     public function edit(Request $request, $id)
@@ -41,6 +51,9 @@ class OrderController extends Controller
             $notify = 'Order updated!';
             return $this->commonResponse($data, $notify, 'update');
         }
+        $company = $this->company->currentCompany();
+        $data['merchants'] = $company->merchants;
+        $data['packages'] = $company->packages->pluck('name', 'id');
         return $this->commonResponse($data, '', 'edit');
     }
 
@@ -48,7 +61,8 @@ class OrderController extends Controller
     {
         $response = $this->processNotification($notify);
         if ($option == 'add') {
-            $response['replaceWith']['#addOrder'] = view('orders.form', ['order'=>''])->render();
+            $data['order'] = [];
+            $response['replaceWith']['#addOrder'] = view('orders.form', $data)->render();
         } else if ($option == 'edit' || $option == 'update') {
             $response['replaceWith']['#editOrder'] = view('orders.form', $data)->render();
         } else if ($option == 'show') {

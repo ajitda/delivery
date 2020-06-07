@@ -22,4 +22,19 @@ class Company extends Model
     //         'user_id'
     //     );
     // }
+
+    public function currentCompany()
+    {
+        return $this->findOrFail(session('company_id'));
+    }
+
+    public function merchants()
+    {
+        return $this->hasMany('App\Models\Merchant');
+    }
+
+    public function packages()
+    {
+        return $this->hasMany('App\Models\Package');
+    }
 }

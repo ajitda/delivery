@@ -32,15 +32,21 @@ class Order extends Model
         } else {
             $order = new Order();
         }
-        $order->first_name = $input['pickup_contact_id'];
-        $order->last_name = $input['pickup_note'];
-        $order->date_of_birth = $input['delivery_contact_id'];
-        $order->phone = $input['delivery_note'];
-        $order->address = $input['product_id'];
-        $order->user_id = $input['order_note'];
-        $order->user_id = $input['status'];
+        $order->pickup_contact_id = $input['pickup_contact_id'];
+        $order->pickup_note = $input['pickup_note'];
+
+        $order->delivery_contact_id = $input['delivery_contact_id'];
+        $order->delivery_note = $input['delivery_note'];
+
+        $order->product_id = $input['product_id'];
+        $order->order_note = $input['order_note'];
+
+        $order->status = config('delivery.order_status.created');
+        $order->package_id = $input['package_id'];
+
         $order->user_id = $input['user_id'];
-        $order->user_id = $input['merchant_id'];
+        $order->merchant_id = $input['merchant_id'];
+        $order->company_id = $input['company_id'];
         $order->save();
         return $order;
     }
@@ -48,10 +54,10 @@ class Order extends Model
     public function validator(array $data, $opt= null)
     {
         $rules = [
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:20'],
-            'date_of_birth' => ['required', 'string', 'max:20'],
+            'pickup_contact_id' => ['required', 'integer'],
+            'delivery_contact_id' => ['required', 'integer'],
+            'product_id' => ['required', 'integer'],
+            'merchant_id' => ['required', 'integer'],
             'address' => ['required', 'string', 'max:255'],
             'document_no' => ['required', 'string', 'max:30'],
         ];

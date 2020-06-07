@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/merchant', 'MerchantController@index')->name('merchant.index');
     Route::match(['get', 'post'], '/merchant/create', 'MerchantController@create')->name('merchant.create');
     Route::get('/merchant/{id}', 'MerchantController@show')->name('merchant.show');
+    Route::get('/merchant/{merchant}/contacts_products', 'MerchantController@getContactsProducts')->name('merchant.contact_products');
     Route::match(['get', 'post'], '/merchant/{merchant}/edit', 'MerchantController@edit')->name('merchant.edit');
     Route::post('/merchant', 'MerchantController@index')->name('merchant.delete');
 
